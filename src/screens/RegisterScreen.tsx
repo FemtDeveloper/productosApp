@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   KeyboardAvoidingView,
   Keyboard,
 } from 'react-native';
+import {StackScreenProps} from '@react-navigation/stack';
 import {ReactLogo} from '../components/ReactLogo';
 import {loginStyles} from '../theme/LoginTheme';
 import {useForm} from '../hooks/useForm';
-import {StackScreenProps} from '@react-navigation/stack';
+import {AuthContext} from '../context/AuthContext';
 
 interface Props extends StackScreenProps<any, any> {}
 
@@ -21,8 +22,11 @@ export const RegisterScreen = ({navigation}: Props) => {
     email: '',
     password: '',
   });
+  const {signUp} = useContext(AuthContext);
+
   const onRegister = () => {
     console.log({email, password, name});
+    signUp({nombre: name, correo: email, password});
     Keyboard.dismiss();
   };
   return (
@@ -35,7 +39,7 @@ export const RegisterScreen = ({navigation}: Props) => {
           <Text style={loginStyles.title}>Registro</Text>
           <Text style={loginStyles.label}>Nombre:</Text>
           <TextInput
-            placeholder="Ingrese su email"
+            placeholder="Ingrese su nombre"
             placeholderTextColor={'white'}
             underlineColorAndroid={'white'}
             style={[
@@ -47,6 +51,7 @@ export const RegisterScreen = ({navigation}: Props) => {
             onSubmitEditing={onRegister}
             autoCorrect={false}
             onChangeText={value => onChange(value, 'name')}
+            value={name}
           />
           <Text style={loginStyles.label}>Email</Text>
           <TextInput
@@ -63,6 +68,7 @@ export const RegisterScreen = ({navigation}: Props) => {
             onSubmitEditing={onRegister}
             autoCorrect={false}
             onChangeText={value => onChange(value, 'email')}
+            value={email}
           />
           <Text style={loginStyles.label}>Password</Text>
           <TextInput

@@ -1,5 +1,10 @@
 import React, {createContext, useEffect, useReducer} from 'react';
-import {LoginData, LoginResponse, Usuario} from '../interfaces/appInterfaces';
+import {
+  LoginData,
+  LoginResponse,
+  RegisterData,
+  Usuario,
+} from '../interfaces/appInterfaces';
 import {AuthState, authReducer} from './AuthReducer';
 import cafeApi from '../api/cafeApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,8 +14,8 @@ type AuthContextProps = {
   token: string | null;
   user: Usuario | null;
   status: 'checking' | 'authenticated' | 'not authenticated';
-  signUp: () => void;
-  signIn: ({correo, password}: LoginData) => Promise<void>;
+  signUp: (obj: RegisterData) => Promise<void>;
+  signIn: (obj: LoginData) => Promise<void>;
   logOut: () => void;
   removeError: () => void;
 };
@@ -43,6 +48,7 @@ export const AuthProvider = ({children}: any) => {
     if (resp.status !== 200) {
       return dispatch({type: 'authenticationFailed'});
     }
+    await AsyncStorage.setItem('token', resp.data.token);
 
     dispatch({
       type: 'signUp',
@@ -72,8 +78,33 @@ export const AuthProvider = ({children}: any) => {
       });
     }
   };
-  const signUp = () => {};
-  const logOut = () => {};
+  const signUp = async ({nombre, correo, password}: RegisterData) => {
+    try {
+      const {data} = await cafeApi.post<LoginResponse>('/usuarios', {
+        nombre,
+        correo,
+        password,
+      });
+      dispatch({
+        type: 'signUp',
+        payload: {token: data.token, user: data.usuario},
+      });
+
+      await AsyncStorage.setItem('token', data.token);
+
+      console.log(data);
+    } catch (error: any) {
+      console.log(error.response.data);
+      dispatch({
+        type: 'addError',
+        payload: error.response.data.msg || 'El correo ya está registrado',
+      });
+    }
+  };
+  const logOut = async () => {
+    await AsyncStorage.removeItem('token');
+    dispatch({type: 'logout'});
+  };
   const removeError = () => {
     dispatch({type: 'removeError'});
   };
