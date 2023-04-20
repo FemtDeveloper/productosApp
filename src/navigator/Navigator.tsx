@@ -3,6 +3,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {LoginScreen, ProtectedScreen, RegisterScreen} from '../screens';
 import {AuthContext} from '../context/AuthContext';
 import {LoadingScreen} from '../screens/LoadingScreen';
+import {ProductsNavigator} from './ProductsNavigator';
 
 const Stack = createStackNavigator();
 
@@ -20,7 +21,13 @@ export const Navigator = () => {
         cardStyle: {backgroundColor: 'white'},
       }}>
       {status === 'authenticated' ? (
-        <Stack.Screen name="ProtectedScreen" component={ProtectedScreen} />
+        <>
+          <Stack.Screen
+            name="ProductsNavigator"
+            component={ProductsNavigator}
+          />
+          <Stack.Screen name="ProtectedScreen" component={ProtectedScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
