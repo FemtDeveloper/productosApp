@@ -1,9 +1,26 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {ProductsContext} from '../context/ProductsContext';
+import {StackScreenProps} from '@react-navigation/stack';
+import {ProductStackParams} from '../navigator/ProductsNavigator';
 
-export const ProductsScreen = () => {
+interface Props extends StackScreenProps<ProductStackParams, 'ProductScreen'> {}
+
+export const ProductsScreen = ({navigation}: Props) => {
   const {products} = useContext(ProductsContext);
+
+  useEffect(() => {
+    navigation.setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
+      headerRight: () => (
+        <TouchableOpacity
+          style={{marginRight: 10}}
+          onPress={() => navigation.navigate('ProductScreen', {})}>
+          <Text>Agregar</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   return (
     <View style={{flex: 1, marginHorizontal: 10}}>
@@ -11,7 +28,14 @@ export const ProductsScreen = () => {
         data={products}
         keyExtractor={item => item._id}
         renderItem={({item}) => (
-          <TouchableOpacity activeOpacity={0.7}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() =>
+              navigation.navigate('ProductScreen', {
+                id: item._id,
+                name: item.nombre,
+              })
+            }>
             <Text style={styles.textItem}>{item.nombre}</Text>
           </TouchableOpacity>
         )}
